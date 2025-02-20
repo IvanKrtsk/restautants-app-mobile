@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import by.ikrotsyuk.mobilefirst.ui.auth.RegistrationScreen
+import by.ikrotsyuk.mobilefirst.ui.screens.MainScreen
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.google.firebase.firestore.ktx.firestore
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
                 Image(painter = painter, contentDescription = null, modifier = Modifier.fillMaxSize())
             }*/
             RegistrationScreen()
+            //MainScreen()
         }
     }
 }
