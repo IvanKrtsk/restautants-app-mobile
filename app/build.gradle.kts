@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.firebase.auth)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

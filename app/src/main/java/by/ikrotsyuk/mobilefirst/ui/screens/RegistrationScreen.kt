@@ -95,7 +95,7 @@ fun RegistrationScreen(
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
                 Button(colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Blue
+                    containerColor = Color.Red
                 ), onClick = {
                     firebaseSignUp(auth,
                         emailEditState.value,
@@ -116,7 +116,7 @@ fun RegistrationScreen(
                 }
 
                 Button(colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Blue
+                    containerColor = Color.Red
                 ), onClick = {
                     firebaseSignIn(auth,
                         emailEditState.value,

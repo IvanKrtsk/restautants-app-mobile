@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import by.ikrotsyuk.mobilefirst.ui.theme.LightBlue
+import by.ikrotsyuk.mobilefirst.ui.theme.TransparentRed
 
 @Composable
 fun CustomTextField(
@@ -22,8 +23,8 @@ fun CustomTextField(
         if(text.isEmpty())
             Text(text = hint, color = Color.Gray, fontSize = 16.sp)
     }, colors = TextFieldDefaults.colors(
-        unfocusedContainerColor = LightBlue,
-        focusedContainerColor = LightBlue
+        unfocusedContainerColor = TransparentRed,
+        focusedContainerColor = TransparentRed
     ),
         singleLine = true,
         modifier = Modifier.fillMaxWidth(0.7f)
