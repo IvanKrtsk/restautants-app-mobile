@@ -11,4 +11,5 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val LightBlue = Color(0x563C80FF)
-val TransparentRed = Color(0x56FF7070)
+val TransparentRed = Color(0x48FF8888)
+val LikeButtonBg = Color(0x4B9C27B0)
