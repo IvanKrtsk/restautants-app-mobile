@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,9 +45,9 @@ import coil3.compose.AsyncImage
 @Composable
 fun RestaurantListItem(
     restaurant: RestaurantDTO,
+    onFavoutiteClick: () -> Unit = {}
 ) {
     val height: Int = LocalConfiguration.current.screenHeightDp
-    var isFavourite by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,13 +77,17 @@ fun RestaurantListItem(
                         containerColor = LikeButtonBg
                     ),
                     onClick = {
-                        isFavourite = !isFavourite
+                        onFavoutiteClick()
                     }
                 ) {
                     Icon(
-                        imageVector = if(isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        if(restaurant.isFavourite) {
+                            Icons.Default.Favorite
+                        }
+                        else
+                            Icons.Default.FavoriteBorder,
                         contentDescription = "favourite",
-                        tint = if (isFavourite) Color.Yellow else Color.Gray,
+                        tint = if (restaurant.isFavourite) Color.Yellow else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
                 }

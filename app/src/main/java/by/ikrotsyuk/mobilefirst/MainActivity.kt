@@ -100,8 +100,8 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable<UserAuthData>{ navEntry ->
-                    val navData = navEntry.toRoute<UserAuthData>()
-                    MainScreen()
+                    val userData = navEntry.toRoute<UserAuthData>()
+                    MainScreen(userData)
                 }
             }
         }

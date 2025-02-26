@@ -10,7 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 
 @Composable
-fun NavigationMenu() {
+fun NavigationMenu(
+    onRestaurantsClick: () -> Unit = {},
+    onFavouritesClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
+) {
     val items = listOf(
         NavigationMenuItem.RestaurantsList,
         NavigationMenuItem.Favourites,
@@ -25,6 +29,11 @@ fun NavigationMenu() {
                 selected = selectedPage.value == item.title,
                 onClick = {
                     selectedPage.value = item.title
+                    when(item.title){
+                        NavigationMenuItem.RestaurantsList.title -> onRestaurantsClick()
+                        NavigationMenuItem.Favourites.title -> onFavouritesClick()
+                        NavigationMenuItem.Profile.title -> onProfileClick()
+                    }
                 },
                 icon = {
                     Icon(painter = painterResource(id = item.iconID), contentDescription = item.title)

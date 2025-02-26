@@ -7,4 +7,5 @@ data class RestaurantDTO (
     val avgBill: String = "",
     val kitchenType: String = "",
     val photoLinks: String = ""/*MutableList<String> = mutableListOf()*/,
+    val isFavourite: Boolean = false
 )
