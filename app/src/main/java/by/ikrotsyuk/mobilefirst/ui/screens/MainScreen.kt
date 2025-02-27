@@ -15,6 +15,7 @@ import by.ikrotsyuk.mobilefirst.dto.RestaurantDTO
 import by.ikrotsyuk.mobilefirst.ui.auth.data.UserAuthData
 import by.ikrotsyuk.mobilefirst.ui.components.RestaurantListItem
 import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenu
+import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenuItem
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,6 +34,10 @@ fun MainScreen(
         Firebase.firestore
     }
 
+    val selectedBottomMenuState = remember {
+        mutableStateOf(NavigationMenuItem.RestaurantsList.title)
+    }
+
     LaunchedEffect(Unit) {
         getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
             getRestaurants(db, favourites){ restaurants ->
@@ -46,6 +51,8 @@ fun MainScreen(
         bottomBar = {
             NavigationMenu(
                 onRestaurantsClick = {
+                    selectedBottomMenuState.value = NavigationMenuItem.RestaurantsList.title
+
                     getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
                         getRestaurants(db, favourites){ restaurants ->
                             restaurantsListState.value = restaurants
@@ -53,6 +60,8 @@ fun MainScreen(
                     }
                 },
                 onFavouritesClick = {
+                    selectedBottomMenuState.value = NavigationMenuItem.Favourites.title
+
                     getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
                         getFavouriteRestaurants(db, favourites){ restaurants ->
                             restaurantsListState.value = restaurants
@@ -60,7 +69,7 @@ fun MainScreen(
                     }
                 },
                 onProfileClick = {
-
+                    selectedBottomMenuState.value = NavigationMenuItem.Profile.title
                 }
             )
         }
@@ -84,6 +93,8 @@ fun MainScreen(
                             } else
                                 it
                         }
+                        if(selectedBottomMenuState.value == NavigationMenuItem.Favourites.title)
+                            restaurantsListState.value = restaurantsListState.value.filter { it.isFavourite }
                     }
                 )
             }
@@ -113,17 +124,20 @@ private fun getFavouriteRestaurants(
     favouriteKeys: List<String>,
     onGetRestaurants: (List<RestaurantDTO>) -> Unit
 ){
-    db.collection("restaurants")
-        .whereIn(FieldPath.documentId(), favouriteKeys)
-        .get()
-        .addOnSuccessListener { task ->
-            onGetRestaurants(task.toObjects(RestaurantDTO::class.java).map {
-                if(favouriteKeys.contains(it.key))
-                    it.copy(isFavourite = true)
-                else
-                    it
-            })
-        }
+    if(favouriteKeys.isNotEmpty()) {
+        db.collection("restaurants")
+            .whereIn(FieldPath.documentId(), favouriteKeys)
+            .get()
+            .addOnSuccessListener { task ->
+                onGetRestaurants(task.toObjects(RestaurantDTO::class.java).map {
+                    if (favouriteKeys.contains(it.key))
+                        it.copy(isFavourite = true)
+                    else
+                        it
+                })
+            }
+    }else
+        onGetRestaurants(emptyList())
 }
 
 private fun getFavouriteRestaurantsKeys(
