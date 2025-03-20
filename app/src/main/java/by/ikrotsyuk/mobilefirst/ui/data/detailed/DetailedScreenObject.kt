@@ -1,14 +1,13 @@
-package by.ikrotsyuk.mobilefirst.dto
+package by.ikrotsyuk.mobilefirst.ui.data.detailed
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RestaurantDTO (
-    val key: String = "",
+data class DetailedScreenObject(
     val name: String = "",
     val address: String = "",
     val avgBill: String = "",
     val kitchenType: String = "",
-    val photoLinks: String = ""/*MutableList<String> = mutableListOf()*/,
+    val photoLinks: String = "" /*MutableList<String> = mutableListOf()*/,
     val isFavourite: Boolean = false
 )

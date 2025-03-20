@@ -1,6 +1,7 @@
 package by.ikrotsyuk.mobilefirst.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,15 +41,19 @@ import coil3.compose.AsyncImage
 @Composable
 fun RestaurantListItem(
     restaurant: RestaurantDTO,
-    onFavoutiteClick: () -> Unit = {}
+    onFavoutiteClick: () -> Unit = {},
+    onItemClick: (RestaurantDTO) -> Unit = {}
 ) {
     val height: Int = LocalConfiguration.current.screenHeightDp
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height((height * 0.22).dp)
-            .padding(5.dp),
-        shape = RoundedCornerShape(10.dp),
+            .padding(5.dp)
+            .clickable {
+                onItemClick(restaurant)
+            },
+        shape = RoundedCornerShape(10.dp)
     ) {
         Row(
             modifier = Modifier.background(color = TransparentRed)

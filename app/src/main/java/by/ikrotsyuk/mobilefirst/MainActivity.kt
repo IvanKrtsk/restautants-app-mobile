@@ -1,19 +1,23 @@
 package by.ikrotsyuk.mobilefirst
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import by.ikrotsyuk.mobilefirst.dto.RestaurantDTO
-import by.ikrotsyuk.mobilefirst.ui.auth.data.RegistrationScreenObject
-import by.ikrotsyuk.mobilefirst.ui.auth.data.UserAuthData
+import by.ikrotsyuk.mobilefirst.ui.data.auth.RegistrationScreenObject
+import by.ikrotsyuk.mobilefirst.ui.data.bottomNavigation.AppNavObject
+import by.ikrotsyuk.mobilefirst.ui.data.detailed.DetailedScreenObject
+import by.ikrotsyuk.mobilefirst.ui.data.bottomNavigation.ProfileNavScreenObject
+import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenuItem
 import by.ikrotsyuk.mobilefirst.ui.screens.MainScreen
+import by.ikrotsyuk.mobilefirst.ui.screens.ProfileScreen
 import by.ikrotsyuk.mobilefirst.ui.screens.RegistrationScreen
+import by.ikrotsyuk.mobilefirst.ui.screens.RestaurantDetailedScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -95,13 +99,50 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = RegistrationScreenObject){
                 composable<RegistrationScreenObject> {
                     RegistrationScreen { navData ->
-                        navController.navigate(navData)
+                        navController.navigate(AppNavObject(
+                            NavigationMenuItem.RestaurantsList.title,
+                            navData.uid,
+                            navData.email
+                        ))
                     }
                 }
 
-                composable<UserAuthData>{ navEntry ->
-                    val userData = navEntry.toRoute<UserAuthData>()
-                    MainScreen(userData)
+                composable<AppNavObject>{ navEntry ->
+                    val navObject = navEntry.toRoute<AppNavObject>()
+                    MainScreen(
+                        navObject,
+                        onDetailedItemClick = { restaurant ->
+                            navController.navigate(DetailedScreenObject(
+                                name = restaurant.name,
+                                address = restaurant.address,
+                                avgBill = restaurant.avgBill,
+                                kitchenType = restaurant.kitchenType,
+                                photoLinks = restaurant.photoLinks,
+                                isFavourite = restaurant.isFavourite
+                            ))
+                        },
+                        onProfileNavClick = {
+                            navController.navigate(ProfileNavScreenObject)
+                        }
+                    )
+                }
+
+                composable<DetailedScreenObject>{ navEntry ->
+                    val navData = navEntry.toRoute<DetailedScreenObject>()
+                    RestaurantDetailedScreen(navData)
+                }
+
+                composable<ProfileNavScreenObject>{ navEntry ->
+                    val profileData = navEntry.toRoute<ProfileNavScreenObject>()
+                    ProfileScreen(
+                        profileData,
+                        onAppContentClick = { bottomMenuItem ->
+                            navController.navigate(bottomMenuItem)
+                        },
+                        onSystemOut = {
+                            navController.navigate(RegistrationScreenObject)
+                        }
+                    )
                 }
             }
         }

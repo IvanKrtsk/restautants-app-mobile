@@ -1,19 +1,24 @@
 package by.ikrotsyuk.mobilefirst.ui.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import by.ikrotsyuk.mobilefirst.dto.FavouriteDTO
 import by.ikrotsyuk.mobilefirst.dto.RestaurantDTO
-import by.ikrotsyuk.mobilefirst.ui.auth.data.UserAuthData
 import by.ikrotsyuk.mobilefirst.ui.components.RestaurantListItem
+import by.ikrotsyuk.mobilefirst.ui.data.bottomNavigation.AppNavObject
 import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenu
 import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenuItem
 import com.google.firebase.Firebase
@@ -23,7 +28,9 @@ import com.google.firebase.firestore.firestore
 
 @Composable
 fun MainScreen(
-    userData: UserAuthData
+    data: AppNavObject,
+    onDetailedItemClick: (RestaurantDTO) -> Unit,
+    onProfileNavClick: () -> Unit
 ) {
 
     val restaurantsListState = remember {
@@ -35,13 +42,26 @@ fun MainScreen(
     }
 
     val selectedBottomMenuState = remember {
-        mutableStateOf(NavigationMenuItem.RestaurantsList.title)
+        mutableStateOf(data.title)
+    }
+
+    val isFavouriteListEmptyState = remember {
+        mutableStateOf(false)
     }
 
     LaunchedEffect(Unit) {
-        getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
-            getRestaurants(db, favourites){ restaurants ->
-                restaurantsListState.value = restaurants
+        if(data.title.equals(NavigationMenuItem.RestaurantsList.title)) {
+            getFavouriteRestaurantsKeys(db, data.uid) { favourites ->
+                getRestaurants(db, favourites) { restaurants ->
+                    restaurantsListState.value = restaurants
+                }
+            }
+        } else if(data.title.equals(NavigationMenuItem.Favourites.title)){
+            getFavouriteRestaurantsKeys(db, data.uid){ favourites ->
+                getFavouriteRestaurants(db, favourites){ restaurants ->
+                    isFavouriteListEmptyState.value = restaurants.isEmpty()
+                    restaurantsListState.value = restaurants
+                }
             }
         }
     }
@@ -53,7 +73,7 @@ fun MainScreen(
                 onRestaurantsClick = {
                     selectedBottomMenuState.value = NavigationMenuItem.RestaurantsList.title
 
-                    getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
+                    getFavouriteRestaurantsKeys(db, data.uid){ favourites ->
                         getRestaurants(db, favourites){ restaurants ->
                             restaurantsListState.value = restaurants
                         }
@@ -62,39 +82,57 @@ fun MainScreen(
                 onFavouritesClick = {
                     selectedBottomMenuState.value = NavigationMenuItem.Favourites.title
 
-                    getFavouriteRestaurantsKeys(db, userData.uid){ favourites ->
+                    getFavouriteRestaurantsKeys(db, data.uid){ favourites ->
                         getFavouriteRestaurants(db, favourites){ restaurants ->
+                            isFavouriteListEmptyState.value = restaurants.isEmpty()
                             restaurantsListState.value = restaurants
                         }
                     }
                 },
                 onProfileClick = {
                     selectedBottomMenuState.value = NavigationMenuItem.Profile.title
+                    onProfileNavClick()
                 }
             )
         }
     ) { paddingValue ->
+        if(isFavouriteListEmptyState.value && (selectedBottomMenuState.value == NavigationMenuItem.Favourites.title)) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No favourites yet...",
+                    fontSize = 16.sp,
+                    color = Color.DarkGray
+                )
+            }
+        }
         LazyColumn(
-            modifier = Modifier.padding(paddingValue)
+            modifier = Modifier.padding(paddingValue),
         ) {
             items(restaurantsListState.value){ restaurant ->
                 RestaurantListItem(
                     restaurant,
+                    onItemClick = {
+                        onDetailedItemClick(restaurant)
+                    },
                     onFavoutiteClick = {
                         restaurantsListState.value = restaurantsListState.value.map {
                             if(it.key == restaurant.key) {
                                 editFavourites(
                                     db,
                                     !it.isFavourite,
-                                    userData.uid,
+                                    data.uid,
                                     FavouriteDTO(it.key)
                                 )
                                 it.copy(isFavourite = !it.isFavourite)
                             } else
                                 it
                         }
-                        if(selectedBottomMenuState.value == NavigationMenuItem.Favourites.title)
+                        if(selectedBottomMenuState.value == NavigationMenuItem.Favourites.title) {
                             restaurantsListState.value = restaurantsListState.value.filter { it.isFavourite }
+                            isFavouriteListEmptyState.value = restaurantsListState.value.isEmpty()
+                        }
                     }
                 )
             }
