@@ -203,9 +203,9 @@ private fun firebaseSignIn(auth: FirebaseAuth,
     }
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener {
-            if(it.isSuccessful)
+            if(it.isSuccessful) {
                 db.collection("users")
-                    .document(auth.uid!!)
+                    .document(it.result.user?.uid!!)
                     .update("lastSignedIn", Timestamp.now().toDate().toString())
                 onSignInSuccess(
                     UserAuthData(
@@ -213,6 +213,7 @@ private fun firebaseSignIn(auth: FirebaseAuth,
                         email = it.result.user?.email!!
                     )
                 )
+            }
         }.addOnFailureListener{
             onSignInFailure(it.message ?: "Sign In error")
         }
