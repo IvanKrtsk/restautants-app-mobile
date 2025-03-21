@@ -11,6 +11,7 @@ import androidx.compose.ui.res.painterResource
 
 @Composable
 fun NavigationMenu(
+    selectedTitle: String,
     onRestaurantsClick: () -> Unit = {},
     onFavouritesClick: () -> Unit = {},
     onProfileClick: () -> Unit = {}
@@ -21,7 +22,7 @@ fun NavigationMenu(
         NavigationMenuItem.Profile
     )
 
-    val selectedPage = remember { mutableStateOf("Restaurants") }
+    val selectedPage = remember { mutableStateOf(selectedTitle) }
 
     NavigationBar {
         items.forEach { item ->

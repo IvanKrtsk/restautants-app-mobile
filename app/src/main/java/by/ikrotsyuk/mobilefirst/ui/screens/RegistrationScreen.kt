@@ -24,10 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import by.ikrotsyuk.mobilefirst.dto.UserInfoDTO
 import by.ikrotsyuk.mobilefirst.ui.data.auth.UserAuthData
 import by.ikrotsyuk.mobilefirst.ui.components.CustomTextField
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
@@ -37,6 +41,10 @@ fun RegistrationScreen(
 ) {
     val auth = remember {
         Firebase.auth
+    }
+
+    val db = remember {
+        Firebase.firestore
     }
 
     val emailEditState = remember {
@@ -96,6 +104,7 @@ fun RegistrationScreen(
                     containerColor = Color.Red
                 ), onClick = {
                     firebaseSignUp(auth,
+                        db,
                         emailEditState.value,
                         passwordEditState.value,
                         onSignUpSuccess = { navData ->
@@ -117,6 +126,7 @@ fun RegistrationScreen(
                     containerColor = Color.Red
                 ), onClick = {
                     firebaseSignIn(auth,
+                        db,
                         emailEditState.value,
                         passwordEditState.value,
                         onSignInSuccess = { navData ->
@@ -143,6 +153,7 @@ fun RegistrationScreen(
 }
 
 private fun firebaseSignUp(auth: FirebaseAuth,
+                           db: FirebaseFirestore,
                            email: String,
                            password: String,
                            onSignUpSuccess: (UserAuthData) -> Unit,
@@ -155,6 +166,18 @@ private fun firebaseSignUp(auth: FirebaseAuth,
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener {
             if (it.isSuccessful)
+                db.collection("users")
+                    .document(auth.uid!!)
+                    .set(UserInfoDTO(
+                        name = "",
+                        surname = "",
+                        email = email,
+                        age = "",
+                        city = "",
+                        address = "",
+                        accountCreationDate = Timestamp.now().toDate().toString(),
+                        lastSignedIn = Timestamp.now().toDate().toString()
+                    ))
                 onSignUpSuccess(
                     UserAuthData(
                         uid = it.result.user?.uid!!,
@@ -168,6 +191,7 @@ private fun firebaseSignUp(auth: FirebaseAuth,
 }
 
 private fun firebaseSignIn(auth: FirebaseAuth,
+                           db: FirebaseFirestore,
                            email: String,
                            password: String,
                            onSignInSuccess: (UserAuthData) -> Unit,
@@ -180,6 +204,9 @@ private fun firebaseSignIn(auth: FirebaseAuth,
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener {
             if(it.isSuccessful)
+                db.collection("users")
+                    .document(auth.uid!!)
+                    .update("lastSignedIn", Timestamp.now().toDate().toString())
                 onSignInSuccess(
                     UserAuthData(
                         uid = it.result.user?.uid!!,

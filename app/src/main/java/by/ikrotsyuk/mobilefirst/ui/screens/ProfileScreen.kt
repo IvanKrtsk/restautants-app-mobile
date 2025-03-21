@@ -1,6 +1,6 @@
 package by.ikrotsyuk.mobilefirst.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +15,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import by.ikrotsyuk.mobilefirst.dto.UserInfoDTO
+import by.ikrotsyuk.mobilefirst.ui.components.CustomTextField
 import by.ikrotsyuk.mobilefirst.ui.data.bottomNavigation.AppNavObject
 import by.ikrotsyuk.mobilefirst.ui.data.bottomNavigation.ProfileNavScreenObject
 import by.ikrotsyuk.mobilefirst.ui.nav_menu.NavigationMenu
@@ -48,17 +51,66 @@ fun ProfileScreen(
         Firebase.firestore
     }
 
+    val userDataNameEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataSurnameEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataAgeEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataCityEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataAddressEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataEmailEditState = remember {
+        mutableStateOf("")
+    }
+    val userDataAccountCreationDateEditState = remember {
+        mutableStateOf("")
+    }
+
+    val userDataLastSignedInEditState = remember {
+        mutableStateOf("")
+    }
+
     val selectedBottomMenuState = remember {
-        mutableStateOf(NavigationMenuItem.RestaurantsList.title)
+        mutableStateOf(NavigationMenuItem.Profile.title)
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        getUserData(
+            db,
+            auth.uid!!,
+            onGetUserInfo = { info ->
+                userDataNameEditState.value = info.name
+                userDataSurnameEditState.value = info.surname
+                userDataAgeEditState.value = info.age
+                userDataCityEditState.value = info.city
+                userDataAddressEditState.value = info.address
+                userDataEmailEditState.value = info.email
+                userDataAccountCreationDateEditState.value = info.accountCreationDate
+                userDataLastSignedInEditState.value = info.lastSignedIn
+            }
+        )
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationMenu(
+                selectedTitle = selectedBottomMenuState.value,
                 onRestaurantsClick = {
                     onAppContentClick(AppNavObject(
                         NavigationMenuItem.RestaurantsList.title,
@@ -83,9 +135,87 @@ fun ProfileScreen(
             modifier = Modifier.
             fillMaxSize().
             padding(paddingValue),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(30.dp))
+
+            CustomTextField(
+                text = userDataNameEditState.value,
+                hint = "Enter your name"
+            ) {
+                userDataNameEditState.value = it
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                text = userDataSurnameEditState.value,
+                hint = "Enter your surname"
+            ) {
+                userDataSurnameEditState.value = it
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                text = userDataAgeEditState.value,
+                hint = "Enter your age",
+            ) {
+                userDataAgeEditState.value = it
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                text = userDataCityEditState.value,
+                hint = "Enter your city",
+            ) {
+                userDataCityEditState.value = it
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                text = userDataAddressEditState.value,
+                hint = "Enter your address",
+            ) {
+                userDataAddressEditState.value = it
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Email: ${userDataEmailEditState.value}")
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Registered at: ${userDataAccountCreationDateEditState.value}")
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Entered at: ${userDataLastSignedInEditState.value}")
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red),
+                onClick = {
+                    updateUserData(
+                        UserInfoDTO(
+                            name = userDataNameEditState.value,
+                            surname = userDataSurnameEditState.value,
+                            age = userDataAgeEditState.value,
+                            email = userDataEmailEditState.value,
+                            city = userDataCityEditState.value,
+                            address = userDataAddressEditState.value,
+                            accountCreationDate = userDataAccountCreationDateEditState.value,
+                            lastSignedIn = userDataLastSignedInEditState.value
+                        ),
+                        db,
+                        auth.uid!!
+                    )
+                }
+            ) {
+                Text(text = "Update your information", fontSize = 16.sp)
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
             Button(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red),
@@ -129,6 +259,34 @@ fun ProfileScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     }
+}
+
+private fun updateUserData(
+    userInfoDTO: UserInfoDTO,
+    db: FirebaseFirestore,
+    uid: String
+){
+    db.collection("users")
+        .document(uid)
+        .set(userInfoDTO)
+        .addOnFailureListener{
+            Log.d("save error", it.message!!)
+        }
+
+}
+
+private fun getUserData(
+    db: FirebaseFirestore,
+    uid: String,
+    onGetUserInfo: (UserInfoDTO) -> Unit
+){
+    db.collection("users")
+        .document(uid)
+        .get()
+        .addOnSuccessListener { task ->
+            val info = task.toObject(UserInfoDTO::class.java)
+            onGetUserInfo(info ?: UserInfoDTO())
+        }
 }
 
 private fun firebaseSignOut(

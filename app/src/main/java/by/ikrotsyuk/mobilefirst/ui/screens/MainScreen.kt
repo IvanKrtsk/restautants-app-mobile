@@ -51,12 +51,14 @@ fun MainScreen(
 
     LaunchedEffect(Unit) {
         if(data.title.equals(NavigationMenuItem.RestaurantsList.title)) {
+            selectedBottomMenuState.value = NavigationMenuItem.RestaurantsList.title
             getFavouriteRestaurantsKeys(db, data.uid) { favourites ->
                 getRestaurants(db, favourites) { restaurants ->
                     restaurantsListState.value = restaurants
                 }
             }
         } else if(data.title.equals(NavigationMenuItem.Favourites.title)){
+            selectedBottomMenuState.value = NavigationMenuItem.Favourites.title
             getFavouriteRestaurantsKeys(db, data.uid){ favourites ->
                 getFavouriteRestaurants(db, favourites){ restaurants ->
                     isFavouriteListEmptyState.value = restaurants.isEmpty()
@@ -70,6 +72,7 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationMenu(
+                selectedTitle = selectedBottomMenuState.value,
                 onRestaurantsClick = {
                     selectedBottomMenuState.value = NavigationMenuItem.RestaurantsList.title
 

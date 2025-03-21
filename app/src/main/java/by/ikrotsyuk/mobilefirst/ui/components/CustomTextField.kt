@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import by.ikrotsyuk.mobilefirst.ui.theme.LightBlue
 import by.ikrotsyuk.mobilefirst.ui.theme.TransparentRed
 
 @Composable
