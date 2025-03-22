@@ -6,11 +6,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -34,6 +41,9 @@ import coil3.compose.AsyncImage
 fun RestaurantDetailedScreen(
     detailedScreenObject: DetailedScreenObject
 ){
+    val pagerState = rememberPagerState(initialPage = 0) {
+        detailedScreenObject.photoLinks.size
+    }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -43,12 +53,17 @@ fun RestaurantDetailedScreen(
                 .padding(5.dp)
                 .clip(RoundedCornerShape(10.dp))
         ) {
-            AsyncImage(
-                model = detailedScreenObject.photoLinks,
-                contentDescription = "img",
-                contentScale = ContentScale.Crop,
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier.fillMaxSize()
-            )
+            ) { page ->
+                AsyncImage(
+                    model = detailedScreenObject.photoLinks[page],
+                    contentDescription = "Image $page",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
         Spacer(Modifier.fillMaxWidth().fillMaxWidth(0.05f))
         Column(

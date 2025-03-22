@@ -1,5 +1,6 @@
 package by.ikrotsyuk.mobilefirst.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -170,6 +171,7 @@ private fun getFavouriteRestaurants(
             .whereIn(FieldPath.documentId(), favouriteKeys)
             .get()
             .addOnSuccessListener { task ->
+                Log.d("error img", "wadaw")
                 onGetRestaurants(task.toObjects(RestaurantDTO::class.java).map {
                     if (favouriteKeys.contains(it.key))
                         it.copy(isFavourite = true)

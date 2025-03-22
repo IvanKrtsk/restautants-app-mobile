@@ -65,7 +65,7 @@ fun RestaurantListItem(
                     .clip(RoundedCornerShape(10.dp))
             ) {
                 AsyncImage(
-                    model = restaurant.photoLinks,
+                    model = restaurant.photoLinks[0],
                     contentDescription = "img",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

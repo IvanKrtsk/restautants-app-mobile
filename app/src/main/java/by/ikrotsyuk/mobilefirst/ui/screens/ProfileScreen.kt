@@ -182,8 +182,8 @@ fun ProfileScreen(
                 userDataAddressEditState.value = it
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "Email: ${userDataEmailEditState.value}")
+            /*Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Email: ${userDataEmailEditState.value}")*/
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Registered at: ${userDataAccountCreationDateEditState.value}")
             Spacer(modifier = Modifier.height(20.dp))
